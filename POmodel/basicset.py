@@ -11,8 +11,9 @@ from pprint import pprint
 import yaml
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+
+from weixintest.testcase.get_data import get_cookies
 
 
 class BasicSet:
@@ -45,12 +46,18 @@ class BasicSet:
             chrome_opts.add_experimental_option( 'w3c' , False )
             self.driver = webdriver.Chrome( options=chrome_opts )
             self.driver.maximize_window()
+            # 看了直播，可以用cookie登录跳过二维码扫描登录
+            self.driver.get( 'https://work.weixin.qq.com/wework_admin/loginpage_wx' )  # 进入到网页中才能设置cookie
+            cookies = get_cookies()
+            for cookie in cookies:
+                self.driver.add_cookie( cookie )
             # 起始页可配化
             # self.driver.get("https://work.weixin.qq.com/wework_admin/frame#index")
             self.driver.get( self._get_url )
             # 暂时无法解决企业微信需要扫码登录的问题，这里采用显示等待，等到手动登录后出现企业微信的logo图标再进行下一步操作
             WebDriverWait( self.driver , 20 ) \
                 .until( lambda driver: self.driver.find_element_by_id( 'menu_index' ) )
+
             # self.driver.implicitly_wait(20)
             # # 发现执行过程中打开了两次浏览器,链式调用时调了多次BasicSet的构造函数？？
             # 单例模式思想，调用一次后改变状态使调用跳过
@@ -71,6 +78,12 @@ class BasicSet:
         else:
             return self.driver.find_element( by=by , value=ele )
 
-#
 # if __name__ == '__main__':
-#     BasicSet().testdate('fail')
+#     driver = webdriver.Chrome()
+#     driver.implicitly_wait( 10 )
+#     driver.get( 'https://work.weixin.qq.com/wework_admin/loginpage_wx' )  # 进入到网页中才能设置cookie
+#     print( driver.get_cookies() )
+#     cookies = [{'domain': '.work.weixin.qq.com', 'httpOnly': False, 'name': 'wwrtx.vid', 'path': '/', 'secure': False, 'value': '1688850260931747'}, {'domain': '.work.weixin.qq.com', 'httpOnly': True, 'name': 'wwrtx.vst', 'path': '/', 'secure': False, 'value': 'FaGlBL5ZHnPHumQP233mfXNsFjReeAd4zStshNSeK4WvKZIT9uAQxsZ-rMFraelVkGsJfqQMAATzRBUEXjQ_a05-qzCbfztDFn4MwgZG2SI-pMsRE07YMn1ouUlVI8pTnAj9fh33wjJcNR3XYimcS3OBjIiGsAf-GmRgDBkHGf_Y13FyQ0HnEfwtdOsUFdHNP4hi1glyUKl_oiEVz60Uo3DweJ2nGh_Hlh-hTpwX4T0RbRmq3Py5wyd7X_SaUx6N4_-nfhMJTfM5FBfByr76zA'}, {'domain': '.work.weixin.qq.com', 'httpOnly': False, 'name': 'wxpay.vid', 'path': '/', 'secure': False, 'value': '1688850260931747'}, {'domain': '.work.weixin.qq.com', 'httpOnly': False, 'name': 'wxpay.corpid', 'path': '/', 'secure': False, 'value': '1970325019462757'}, {'domain': '.work.weixin.qq.com', 'httpOnly': True, 'name': 'wwrtx.ref', 'path': '/', 'secure': False, 'value': 'direct'}, {'domain': '.work.weixin.qq.com', 'httpOnly': True, 'name': 'wwrtx.ltype', 'path': '/', 'secure': False, 'value': '1'}, {'domain': '.work.weixin.qq.com', 'httpOnly': False, 'name': 'wwrtx.d2st', 'path': '/', 'secure': False, 'value': 'a9148616'}, {'domain': '.qq.com', 'expiry': 1626108323, 'httpOnly': False, 'name': '_gid', 'path': '/', 'secure': False, 'value': 'GA1.2.756599326.1626021910'}, {'domain': 'work.weixin.qq.com', 'expiry': 1626053447, 'httpOnly': True, 'name': 'ww_rtkey', 'path': '/', 'secure': False, 'value': '2jhc8qc'}, {'domain': '.work.weixin.qq.com', 'httpOnly': True, 'name': 'wwrtx.refid', 'path': '/', 'secure': False, 'value': '17621935912708638'}, {'domain': '.work.weixin.qq.com', 'httpOnly': False, 'name': 'wwrtx.cs_ind', 'path': '/', 'secure': False, 'value': ''}, {'domain': '.qq.com', 'expiry': 1626021970, 'httpOnly': False, 'name': '_gat', 'path': '/', 'secure': False, 'value': '1'}, {'domain': '.work.weixin.qq.com', 'expiry': 1657557908, 'httpOnly': False, 'name': 'wwrtx.c_gdpr', 'path': '/', 'secure': False, 'value': '0'}, {'domain': '.qq.com', 'expiry': 1689093923, 'httpOnly': False, 'name': '_ga', 'path': '/', 'secure': False, 'value': 'GA1.2.178072952.1626021910'}, {'domain': '.work.weixin.qq.com', 'httpOnly': True, 'name': 'wwrtx.sid', 'path': '/', 'secure': False, 'value': 'LAo1wDAGySzqOu1IOslU6ZE-yxXPeMeIEyy0cec4qquL7U_-qoACubLLj3j5BKfW'}, {'domain': '.work.weixin.qq.com', 'expiry': 1628613925, 'httpOnly': False, 'name': 'wwrtx.i18n_lan', 'path': '/', 'secure': False, 'value': 'zh'}]
+#     for cookie in cookies:
+#         driver.add_cookie( cookie )
+#     driver.get( 'https://work.weixin.qq.com/wework_admin/frame#index' )
